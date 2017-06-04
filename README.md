@@ -1,6 +1,6 @@
-## demo
+# demo
 
-# music-pc
+## music-pc
 
 > vue实现一个简易pc网易云音乐的demo<br>
 > 实现功能有轮播，分页，音乐播放、评论、进度条等<br>
