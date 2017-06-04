@@ -2,7 +2,7 @@
 
 > a music-pc project by vue<br>
 > 可以下载music-pc文件打开demo里面的index.html查看demo<br>
-> 在线demo查看 https://liuhualin95.github.io/music-pc/loadme/index.html#/
+> 在线demo查看 https://liuhualin95.github.io/demo/music-pc/demo/index.html#/
 
 ## Build Setup
 
@@ -40,7 +40,7 @@ npm run build --report
 ```
 
 ## 轮播
-![轮播](https://github.com/liuhualin95/liuhualin95.github.io/blob/master/music-pc/pic/carousel.png)
+![轮播](https://github.com/liuhualin95/demo/blob/master/music-pc/pic/carousel.png)
 ``` bash
 轮播图实现思路：
 1、写一个ul里面三个li放图（第七张第一张第二张），同时用transform写好位置li上添加transition有个动态效果
@@ -54,7 +54,7 @@ skip-right动画效果的话，用index使类left对应skip-left，right对应sk
 ```
 
 ## 推荐歌单
-![推荐歌单](https://github.com/liuhualin95/liuhualin95.github.io/blob/master/music-pc/pic/recommend-list.png)
+![推荐歌单](https://github.com/liuhualin95/demo/blob/master/music-pc/pic/recommend-list.png)
 ``` bash
 推荐歌单注意事项：
 1、使用transition过渡动画
@@ -64,7 +64,7 @@ onmouseover和onmouseout在鼠标穿过被选元素和任何子元素时均会�
 ```
 
 ## 音乐播放、进度条、播放模式
-![音乐播放](https://github.com/liuhualin95/liuhualin95.github.io/blob/master/music-pc/pic/footer.png)
+![音乐播放](https://github.com/liuhualin95/demo/blob/master/music-pc/pic/footer.png)
 ``` bash
 播放器实现思路:
 1、父子间组件通信：父组件把当前时间值（audio元素的currentTime)和总时间(audio元素的duration)传给子组件，子组件根据比例去算出进度条和translateX的宽度
@@ -79,7 +79,7 @@ onmouseover和onmouseout在鼠标穿过被选元素和任何子元素时均会�
 ```
 
 ## 评论、分页
-![评论分页](https://github.com/liuhualin95/liuhualin95.github.io/blob/master/music-pc/pic/comments.png)
+![评论分页](https://github.com/liuhualin95/demo/blob/master/music-pc/pic/comments.png)
 ``` bash
 实现思路：
 数据使用mock随机生成，例如
