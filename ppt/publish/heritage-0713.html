@@ -1,0 +1,279 @@
+<!--
+    Powered By nodeppt - This is probably the best web presentation tool so far!
+    version: 1.4.5
+    site: https://github.com/ksky521/nodeppt
+    date: 
+-->
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>heritage-0713 - By Henry</title>
+    <link rel="stylesheet" media="all" href="./css/nodeppt.css">
+    <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="./css/phone.css">
+    
+    <link rel="stylesheet" href="./js/highlight/styles/monokai_sublime.css">
+    <link rel="stylesheet" href="./css/font-awesome.css">
+    
+<link rel="stylesheet" href="./css/theme.moon.css">
+</head>
+<body>
+<div class="slides">
+    <slides id="container">
+        <slide class="slide"><section class="slide-wrapper"><article class="flexbox vcenter">
+<h1>ES5、ES6继承浅析</h1>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h1>主要内容</h1>
+
+</hgroup><article>
+
+<ul class="rollIn">
+<li>es5继承</li>
+<li>es6继承</li>
+<li>es5与es6继承对比</li>
+<li>es6继承可以继承父类的全部行为，吗</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>es5继承</h2>
+<ul>
+<li>组合使用构造函数和原型函数</li>
+</ul>
+
+</hgroup><article>
+
+<pre><code class="javascript">function A(type) {
+    this.type = type
+}
+A.prototype.sayType = function() {
+    return this.type
+}
+function B(type) {
+    A.call(this, type)
+}
+B.prototype = new A(&#39;&#39;)
+B.prototype.say = function() {
+    return &#39;my type is B&#39;
+}
+var b = new B(&#39;B&#39;)
+</code></pre>
+<img src="./img/es5继承.png" alt="es5继承">
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>es5继承</h2>
+<ul>
+<li>寄生组合式继承</li>
+</ul>
+
+</hgroup><article>
+
+<pre><code class="javascript">function A(type) {
+    this.type = type
+}
+A.prototype.sayType = function() {
+    return this.type
+}
+function B(type) {
+    A.call(this, type)
+}
+B.prototype = Object.create(A.prototype)    //只有这里不同。
+B.prototype.say = function() {
+    return &#39;my type is B&#39;
+}
+var b = new B(&#39;B&#39;)
+</code></pre>
+<p><img src="./img/es5继承-寄生组合式.png" alt="es5继承-寄生组合式"><br><img src="https://github.com/liuhualin95/demo/blob/master/publicImg/es5继承-寄生组合式.png">
+<img src="https://github.com/liuhualin95/demo/blob/master/publicImg/es5继承-寄生组合式.png" alt="es5继承-寄生组合式"></p>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>es6继承</h2>
+<ul>
+<li>class</li>
+</ul>
+
+</hgroup><article>
+
+<pre><code class="javascript">class Animal {
+    constructor() {
+        this.type = &#39;animal&#39;
+    }
+    says(say) {
+        console.log(this.type + &#39; says &#39; + say)
+    }
+}
+</code></pre>
+<pre><code class="javascript">class Animal {
+    constructor() {
+        return Object.create(null)
+    }
+    says(say) {
+        console.log(this.type + &#39; says &#39; + say)
+    }
+}
+console.log(new Animal() instanceof Animal)
+console.log(new Animal() instanceof Object)
+</code></pre>
+<ul>
+<li>一个类必须有constructor方法，默认会返回实例对象（即this），没有显示定义会默认添加一个空的constructor方法</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>es6继承</h2>
+<ul>
+<li>class</li>
+</ul>
+<pre><code class="javascript">class Animal {
+    constructor() {
+        this.type = &#39;animal&#39;
+    }
+    says(say) {
+        console.log(this.type + &#39; says &#39; + say)
+    }
+}
+</code></pre>
+<ul>
+<li>一个类必须有constructor方法，默认会返回实例对象（即this），没有显示定义会默认添加一个空的constructor方法</li>
+</ul>
+
+</hgroup><article>
+
+<pre><code class="javascript">console.log(typeof Animal)    //function
+Animal()//Uncaught TypeError: Class constructor Animal cannot be invoked without &#39;new&#39;
+console.log(Object.keys(Animal.prototype))    //[]
+console.log(Object.getOwnPropertyNames(Animal.prototype))    
+//(2) [&quot;constructor&quot;, &quot;says&quot;]
+</code></pre>
+<ul>
+<li>类的数据类型就是函数，然而不能直接像function一样直接调用，必须通过new命令生成实例，new命令会自动调用constructor方法</li>
+<li>通过Object.keys()和Object.getOwnPropertyNames()方法可以发现类的方法都定义在prototype对象上，但是不可枚举</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<h2>es5与es6继承的几点不同</h2>
+<ul>
+<li>子类原型对象的constructor指向不同</li>
+<li>子类的原型链指针不同</li>
+<li>实质不同（this）</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<h2>es6继承真的可以继承父类的全部行为吗</h2>
+<ul>
+<li>组合使用构造函数和原型函数</li>
+<li>寄生组合式继承</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>使用.class/#id/自定义属性样式</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">alert(&#39;nodeppt&#39;);
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>主页面样式</h2>
+<h3>----是上下分界线</h3>
+
+</hgroup><article>
+
+<p>nodeppt是基于nodejs写的支持 <strong>Markdown!</strong> 语法的网页PPT，当前版本：1.4.5</p>
+<p>Github：<a href="https://github.com/ksky521/nodeppt" target="_blank">https://github.com/ksky521/nodeppt</a></p>
+
+</article></section></slide>
+        
+
+        <!-- <slide class="slide logoslide dark nobackground">
+            <article class="flexbox vcenter">
+                <h2 style="color: white;">Powered By nodeppt v1.4.5</h2>
+            </article>
+        </slide> -->
+        <div class="slideTip" id="tip"></div>
+    </slides>
+</div>
+<canvas id="drawBoard" class="draw-board" width="900" height="700"></canvas>
+<div class="progress"><span id="progress"></span></div>
+<div id="_buttons">
+    <div class="_btn-box" id="_btn-box" style="display:none;">
+        <button class="fa fa-arrow-circle-left" id="_btn-prev"></button>
+        <button class="fa fa-arrow-circle-right" id="_btn-next"></button>
+        <button class="fa fa-paint-brush" id="_btn-brush"></button>
+        <button class="fa fa-compress" id="_btn-overview" data-toggle="fa fa-expand"></button>
+    </div>
+    <button class="fa fa-bars" id="_btn-bar"  data-toggle="fa fa-close"></button>
+</div>
+<script src="./js/mixjs/lib/mix.0.3.0.min.js"></script>
+<script>
+    var ASSET_RELATIVE_DIR = ".";
+</script>
+<script>
+var base = location.protocol + '//' + location.host;
+
+var path = (location.pathname + '#').split('/').filter(function(v){
+    return !!v;
+});
+path.pop();
+path = path.join('/');
+if (typeof ASSET_RELATIVE_DIR === 'string') {
+    path = path + '/' + ASSET_RELATIVE_DIR;
+}
+MixJS.config({
+    baseURL: [ base, path, 'js'].join('/')+'/'
+});
+
+</script>
+<script src="./js/mixjs/lib/event/broadcast.js"></script>
+<script src="./js/nodeppt.js"></script>
+<script>
+Slide.init({
+    containerID: 'container',
+    drawBoardID: 'drawBoard',
+    slideClass: '.slide',
+    buildClass: '.build',
+    progressID: 'progress',
+    transition: 'slide3',
+    width: 1100,
+    dir: './',
+    
+    //打开下面的注释就开启postMessage方式
+    //访问网址127.0.0.1:8080/ppt/demo#client
+    control:{
+        type: 'postMessage',
+        args:{
+            isControl:  false
+        }
+    },
+    
+    tipID: 'tip'
+});
+MixJS.loadJS('highlight/highlight.pack.js',function(){
+    hljs.tabReplace = '  ';
+    hljs.initHighlightingOnLoad();
+});
+</script>
+<script src="./js/demo.js"></script>
+<link rel="stylesheet" href="./css/demo.css">
+<script src="./js/zoom.js"></script>
+
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  config: ["TeX-AMS-MML_HTMLorMML.js"],
+  tex2jax: {inlineMath: [['\\(','\\)']]}});
+  //['$','$'], 避免货币价格冲突
+</script>
+<script type="text/javascript" src="./js/mathjax/MathJax.js"></script>
+
+<!--placeholder-->
+</body>
+</html>
