@@ -60,7 +60,16 @@ B.prototype.say = function() {
 }
 var b = new B(&#39;B&#39;)
 </code></pre>
-<img src="./img/es5继承.png" alt="es5继承">
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<ul>
+<li>组合使用构造函数和原型函数</li>
+</ul>
+
+</hgroup><article>
+
+<img src="./img/es5-heritage-01.png" alt="es5继承">
 
 </article></section></slide>
 <slide class="slide"><section class="slide-wrapper"><hgroup>
@@ -86,8 +95,16 @@ B.prototype.say = function() {
 }
 var b = new B(&#39;B&#39;)
 </code></pre>
-<p><img src="./img/es5继承-寄生组合式.png" alt="es5继承-寄生组合式"><br><img src="https://github.com/liuhualin95/demo/blob/master/publicImg/es5继承-寄生组合式.png">
-<img src="https://github.com/liuhualin95/demo/blob/master/publicImg/es5继承-寄生组合式.png" alt="es5继承-寄生组合式"></p>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<ul>
+<li>寄生组合式继承</li>
+</ul>
+
+</hgroup><article>
+
+<img src="./img/es5-heritage-02.png" alt="es5继承-寄生组合式">
 
 </article></section></slide>
 <slide class="slide"><section class="slide-wrapper"><hgroup>
@@ -128,24 +145,16 @@ console.log(new Animal() instanceof Object)
 <ul>
 <li>class</li>
 </ul>
-<pre><code class="javascript">class Animal {
-    constructor() {
-        this.type = &#39;animal&#39;
-    }
-    says(say) {
-        console.log(this.type + &#39; says &#39; + say)
-    }
-}
-</code></pre>
-<ul>
-<li>一个类必须有constructor方法，默认会返回实例对象（即this），没有显示定义会默认添加一个空的constructor方法</li>
-</ul>
 
 </hgroup><article>
 
-<pre><code class="javascript">console.log(typeof Animal)    //function
-Animal()//Uncaught TypeError: Class constructor Animal cannot be invoked without &#39;new&#39;
-console.log(Object.keys(Animal.prototype))    //[]
+<pre><code class="javascript">console.log(typeof Animal)    
+//function
+Animal()
+//Uncaught TypeError: Class constructor Animal cannot be invoked without &#39;new&#39;
+
+console.log(Object.keys(Animal.prototype))    
+//[]
 console.log(Object.getOwnPropertyNames(Animal.prototype))    
 //(2) [&quot;constructor&quot;, &quot;says&quot;]
 </code></pre>
@@ -156,7 +165,137 @@ console.log(Object.getOwnPropertyNames(Animal.prototype))
 
 </article></section></slide>
 <slide class="slide"><section class="slide-wrapper"><article>
+<pre><code class="javascript">class Animal {
+    constructor() {
+        this.type = &#39;animal&#39;
+    }
+    says(say) {
+        console.log(this.type + &#39; says &#39; + say)
+    }
+}
+let animal = new Animal()
+class Cat extends Animal {
+    constructor() {
+        super()    //相当于Animal.prototype.constructor.call(this)
+    }
+    eat() {
+        console.log(&#39;eat&#39;)
+    }
+}
+let cat = new Cat()
+</code></pre>
+<ul>
+<li>声明了继承的class，必须先执行super表达式，从而对this进行绑定，才能使用this。</li>
+<li>super表达式的执行过程<ul>
+<li>result = new GetSuperConstructor</li>
+<li>给当前词法环境绑定this值为result</li>
+</ul>
+</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>为什么要先执行super表达式呢</h2>
+<ul>
+<li>先创建父类的实例对象this，然后再用子类的构造函数修改this</li>
+</ul>
+
+</hgroup><article>
+
+<img src="./img/es6-this-01.png" alt="es6-this-01">
+<p><a href="http://www.ecma-international.org/ecma-262/7.0/index.html#sec-runtime-semantics-classdefinitionevaluation" target="_blank">http://www.ecma-international.org/ecma-262/7.0/index.html#sec-runtime-semantics-classdefinitionevaluation</a></p>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<img src="./img/es6-this-02.png" alt="es6-this-02">
+<p><a href="http://www.ecma-international.org/ecma-262/7.0/index.html#sec-ecmascript-function-objects" target="_blank">http://www.ecma-international.org/ecma-262/7.0/index.html#sec-ecmascript-function-objects</a></p>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<img src="./img/es6-this-03.png" alt="es6-this-03">
+<p><a href="http://www.ecma-international.org/ecma-262/7.0/index.html#sec-ecmascript-function-objects-construct-argumentslist-newtarget" target="_blank">http://www.ecma-international.org/ecma-262/7.0/index.html#sec-ecmascript-function-objects-construct-argumentslist-newtarget</a></p>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>super</h2>
+
+</hgroup><article>
+
+<ul>
+<li>super作为函数调用时，只能用在子类的构造函数之中，代表父类的构造函数</li>
+<li>super作为对象使用时，在普通方法中，指向父类的原型对象(prototype)，在静态方法中，指向父类</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<pre><code class="javascript">class A {
+    constructor() {
+        this.x = 1
+    }
+    print() {
+        console.log(this.x)
+    }
+}
+A.prototype.x = 2
+class B extends A {
+    constructor() {
+        super()
+        this.x = 3
+    }
+    printX() {
+        super.print()
+    }
+}
+let b = new B()
+b.printX()
+</code></pre>
+<ul class="rollIn">
+<li>通过super调用父类的方法的时候，会绑定到子类的this</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<pre><code class="javascript">class A {
+    constructor() {
+        this.x = 1
+    }
+}
+A.prototype.x = 2
+class B extends A {
+    constructor() {
+        super()
+        this.x = 3
+        super.x = 4
+        console.log(super.x)
+        console.log(this.x)
+    }
+}
+let b = new B()
+</code></pre>
+<ul class="rollIn">
+<li>因为super绑定到子类的this<ul>
+<li>所以如果是通过super对某个属性赋值，这时候super就是this，赋值的属性也会变成子类实例的属性</li>
+<li>而进行取值操作的时候，super仍会指向父类的原型对象(prototype)</li>
+</ul>
+</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<img src="./img/es6-super-get.png" alt="es6-super-get">
+<p><a href="http://www.ecma-international.org/ecma-262/7.0/index.html#sec-makesuperpropertyreference" target="_blank">http://www.ecma-international.org/ecma-262/7.0/index.html#sec-makesuperpropertyreference</a></p>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<img src="./img/es6-super-set.png" alt="es6-super-set">
+<p><a href="http://www.ecma-international.org/ecma-262/7.0/index.html#sec-assignment-operators-runtime-semantics-evaluation" target="_blank">http://www.ecma-international.org/ecma-262/7.0/index.html#sec-assignment-operators-runtime-semantics-evaluation</a></p>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
 <h2>es5与es6继承的几点不同</h2>
+
+</hgroup><article>
+
 <ul>
 <li>子类原型对象的constructor指向不同</li>
 <li>子类的原型链指针不同</li>
@@ -164,31 +303,182 @@ console.log(Object.getOwnPropertyNames(Animal.prototype))
 </ul>
 
 </article></section></slide>
-<slide class="slide"><section class="slide-wrapper"><article>
-<h2>es6继承真的可以继承父类的全部行为吗</h2>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<p><img src="./img/es5-constructor.png" alt="es5-constructor"></p>
+
+</hgroup><article>
+
 <ul>
-<li>组合使用构造函数和原型函数</li>
-<li>寄生组合式继承</li>
+<li>es5<ul>
+<li>子类的原型对象<strong>prototype</strong>在不指定constructor的情况下，会指向父类构造函数</li>
+</ul>
+</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<h2><img src="./img/es6-constructor.png" alt="es6-constructor"></h2>
+<ul>
+<li>es6<ul>
+<li>子类的原型对象<strong>prototype</strong>的constructor，会指向子类构造函数</li>
+</ul>
+</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<h2><img src="./img/es5-__proto__.png" alt="es5-__proto__"></h2>
+<ul>
+<li>es5<ul>
+<li>子类的原型链指针依旧指向Function.prototype</li>
+<li>子类构造函数和父类构造函数之间不存在关系</li>
+</ul>
+</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<h2><img src="./img/es6-__proto__.png" alt="es6-__proto__"></h2>
+<ul>
+<li>es6<ul>
+<li>子类构造函数的原型链指针指向父类构造函数</li>
+<li>父类构造函数的原型链指针指向Function.prototype</li>
+</ul>
+</li>
 </ul>
 
 </article></section></slide>
 <slide class="slide"><section class="slide-wrapper"><hgroup>
-<h2>使用.class/#id/自定义属性样式</h2>
+<ul>
+<li>正常array实例</li>
+</ul>
+<pre><code class="javascript">let array = new Array()
+console.log(Object.keys(array))        //[]
+console.log(Object.getOwnPropertyNames(array))    //[&quot;length&quot;]
+console.log(array.hasOwnProperty(&#39;length&#39;))    //true
+</code></pre>
+<ul>
+<li>es5继承创建的子类实例</li>
+</ul>
 
 </hgroup><article>
 
-<pre><code class="javascript">alert(&#39;nodeppt&#39;);
+<pre><code class="javascript">function MyArray() {
+    Array.apply(this, arguments)
+}
+MyArray.prototype = Object.create(Array.prototype)
+let arr = new MyArray()
+arr[0] = &#39;hello&#39;
+console.log(arr.length)    //0
+console.log(arr)    //MyArray {0: &quot;hello&quot;}
+console.log(Object.keys(arr))    //[&quot;0&quot;]
+console.log(Object.getOwnPropertyNames(arr))    //[&quot;0&quot;]
+
+console.log(arr.hasOwnProperty(&#39;length&#39;))    //false
+console.log(MyArray.prototype.hasOwnProperty(&#39;length&#39;))    //false
+console.log(Array.prototype.hasOwnProperty(&#39;length&#39;))    //true
 </code></pre>
 
 </article></section></slide>
 <slide class="slide"><section class="slide-wrapper"><hgroup>
-<h2>主页面样式</h2>
-<h3>----是上下分界线</h3>
+<ul>
+<li>原生构造函数会忽略apply(call)方法传入的this，也就是说，原生构造函数的this无法绑定，导致拿不到内部属性。</li>
+</ul>
 
 </hgroup><article>
 
-<p>nodeppt是基于nodejs写的支持 <strong>Markdown!</strong> 语法的网页PPT，当前版本：1.4.5</p>
-<p>Github：<a href="https://github.com/ksky521/nodeppt" target="_blank">https://github.com/ksky521/nodeppt</a></p>
+<img src="./img/construtor-function-new-super.png" alt="construtor-function-new-super">
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<ul>
+<li>es6继承创建的子类实例</li>
+</ul>
+
+</hgroup><article>
+
+<pre><code class="javascript">class AnotherArray extends Array {
+    constructor() {
+        super()
+    }
+}
+let _arr = new AnotherArray()
+_arr[0] = &#39;hello&#39;
+console.log(_arr.length)    //1
+console.log(Object.keys(_arr))    //[&quot;0&quot;]
+console.log(Object.getOwnPropertyNames(_arr))    //[&quot;0&quot;, &quot;length&quot;]
+
+console.log(_arr.hasOwnProperty(&#39;length&#39;))    //true
+</code></pre>
+<ul>
+<li>子类是否可以继承调用isArray方法</li>
+</ul>
+<pre><code class="javascript">console.log(MyArray.isArray(arr))    
+//Uncaught TypeError: MyArray.isArray is not a function
+console.log(AnotherArray.isArray(_arr))    
+//true
+
+console.log(Object.getOwnPropertyNames(AnotherArray))    
+//(3) [&quot;length&quot;, &quot;prototype&quot;, &quot;name&quot;]
+console.log(Object.getOwnPropertyNames(Array))    
+//(8) [&quot;length&quot;, &quot;name&quot;, &quot;arguments&quot;, &quot;caller&quot;, &quot;prototype&quot;, &quot;isArray&quot;, &quot;from&quot;, &quot;of&quot;]
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>实质不同</h2>
+<ul>
+<li><p>es5 先新建子类的实例对象this，再将父类的属性添加到子类上，由于父类的属性无法获取，导致无法继承原生的构造函数  </p>
+<blockquote>
+<p>例如Array构造函数有一个内部属性[[DefineOwnProperty]]，用来定义新属性时更新length属性，这个属性无法在子类获取</p>
+</blockquote>
+</li>
+</ul>
+
+</hgroup><article>
+
+<ul>
+<li>es6 先新建父类的实例对象this，然后再用子类的构造函数修饰this，使得父类的所有行为可以继承</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<h2>es6继承真的可以继承父类的全部行为，吗</h2>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<pre><code class="javascript">class MyError extends Error {
+    constructor(){
+        super(...arguments)
+    }
+}
+let errorInstance = new MyError(&#39;myerror-test&#39;)
+console.log(errorInstance.message === &#39;myerror-test&#39;)
+
+class NewObj extends Object {
+    constructor(){
+        super(...arguments)
+    }
+}
+let newObjInstance = new NewObj({attr: true})
+console.log(newObjInstance.attr === true)
+
+let objectInstance = new Object({attr: true})
+console.log(objectInstance.attr === true)
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<ul>
+<li>NewObj继承了Object类，但是却无法通过super参数向父类Object传递参数</li>
+</ul>
+<ul class="rollIn">
+<li>因为ES6改变了Object构造函数的行为，只有通过new Object()这种形式调用才有作用，否则会忽略传递的参数</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article class="flexbox vcenter">
+<h1>THANKS</h1>
 
 </article></section></slide>
         
