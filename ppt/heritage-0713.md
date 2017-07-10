@@ -318,7 +318,9 @@ http://www.ecma-international.org/ecma-262/7.0/index.html#sec-assignment-operato
 
 [slide]
 
-![__proto__](/img/__proto__.png)
+
+![proto](/img/proto.png)
+
 
 [slide]
 
