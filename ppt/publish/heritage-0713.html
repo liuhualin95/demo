@@ -292,6 +292,16 @@ let b = new B()
 
 </article></section></slide>
 <slide class="slide"><section class="slide-wrapper"><hgroup>
+<ul>
+<li>es6继承</li>
+</ul>
+
+</hgroup><article>
+
+<img src="./img/es6-heritage.png" alt="es6继承">
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
 <h2>es5与es6继承的几点不同</h2>
 
 </hgroup><article>
@@ -348,15 +358,11 @@ let b = new B()
 </ul>
 
 </article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<img src="./img/__proto__.png" alt="__proto__">
+
+</article></section></slide>
 <slide class="slide"><section class="slide-wrapper"><hgroup>
-<ul>
-<li>正常array实例</li>
-</ul>
-<pre><code class="javascript">let array = new Array()
-console.log(Object.keys(array))        //[]
-console.log(Object.getOwnPropertyNames(array))    //[&quot;length&quot;]
-console.log(array.hasOwnProperty(&#39;length&#39;))    //true
-</code></pre>
 <ul>
 <li>es5继承创建的子类实例</li>
 </ul>
@@ -368,15 +374,35 @@ console.log(array.hasOwnProperty(&#39;length&#39;))    //true
 }
 MyArray.prototype = Object.create(Array.prototype)
 let arr = new MyArray()
+
 arr[0] = &#39;hello&#39;
 console.log(arr.length)    //0
+
 console.log(arr)    //MyArray {0: &quot;hello&quot;}
+
 console.log(Object.keys(arr))    //[&quot;0&quot;]
 console.log(Object.getOwnPropertyNames(arr))    //[&quot;0&quot;]
 
 console.log(arr.hasOwnProperty(&#39;length&#39;))    //false
 console.log(MyArray.prototype.hasOwnProperty(&#39;length&#39;))    //false
 console.log(Array.prototype.hasOwnProperty(&#39;length&#39;))    //true
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<ul>
+<li>正常array实例</li>
+</ul>
+
+</hgroup><article>
+
+<pre><code class="javascript">let array = new Array()
+
+console.log(Object.keys(array))        //[]
+
+console.log(Object.getOwnPropertyNames(array))    //[&quot;length&quot;]
+
+console.log(array.hasOwnProperty(&#39;length&#39;))    //true
 </code></pre>
 
 </article></section></slide>
@@ -403,16 +429,24 @@ console.log(Array.prototype.hasOwnProperty(&#39;length&#39;))    //true
     }
 }
 let _arr = new AnotherArray()
+
 _arr[0] = &#39;hello&#39;
 console.log(_arr.length)    //1
+
 console.log(Object.keys(_arr))    //[&quot;0&quot;]
 console.log(Object.getOwnPropertyNames(_arr))    //[&quot;0&quot;, &quot;length&quot;]
 
 console.log(_arr.hasOwnProperty(&#39;length&#39;))    //true
 </code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
 <ul>
 <li>子类是否可以继承调用isArray方法</li>
 </ul>
+
+</hgroup><article>
+
 <pre><code class="javascript">console.log(MyArray.isArray(arr))    
 //Uncaught TypeError: MyArray.isArray is not a function
 console.log(AnotherArray.isArray(_arr))    

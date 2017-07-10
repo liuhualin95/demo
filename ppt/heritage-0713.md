@@ -267,6 +267,14 @@ http://www.ecma-international.org/ecma-262/7.0/index.html#sec-assignment-operato
 
 [slide]
 
++ es6继承    
+
+----
+
+![es6继承](/img/es6-heritage.png)
+
+[slide]
+
 ## es5与es6继承的几点不同
 ----
 + 子类原型对象的constructor指向不同
@@ -309,14 +317,11 @@ http://www.ecma-international.org/ecma-262/7.0/index.html#sec-assignment-operato
  * 父类构造函数的原型链指针指向Function.prototype
 
 [slide]
-* 正常array实例
 
-```javascript
-let array = new Array()
-console.log(Object.keys(array))		//[]
-console.log(Object.getOwnPropertyNames(array))	//["length"]
-console.log(array.hasOwnProperty('length'))	//true
-```
+![__proto__](/img/__proto__.png)
+
+[slide]
+
 * es5继承创建的子类实例
 
 ----
@@ -327,9 +332,12 @@ function MyArray() {
 }
 MyArray.prototype = Object.create(Array.prototype)
 let arr = new MyArray()
+
 arr[0] = 'hello'
 console.log(arr.length)	//0
+
 console.log(arr)	//MyArray {0: "hello"}
+
 console.log(Object.keys(arr))	//["0"]
 console.log(Object.getOwnPropertyNames(arr))	//["0"]
 
@@ -338,6 +346,21 @@ console.log(MyArray.prototype.hasOwnProperty('length'))	//false
 console.log(Array.prototype.hasOwnProperty('length'))	//true
 
 ```
+[slide]
+
+* 正常array实例
+
+----
+```javascript
+let array = new Array()
+
+console.log(Object.keys(array))		//[]
+
+console.log(Object.getOwnPropertyNames(array))	//["length"]
+
+console.log(array.hasOwnProperty('length'))	//true
+```
+
 [slide]
 
 * 原生构造函数会忽略apply(call)方法传入的this，也就是说，原生构造函数的this无法绑定，导致拿不到内部属性。
@@ -359,15 +382,21 @@ class AnotherArray extends Array {
 	}
 }
 let _arr = new AnotherArray()
+
 _arr[0] = 'hello'
 console.log(_arr.length)	//1
+
 console.log(Object.keys(_arr))	//["0"]
 console.log(Object.getOwnPropertyNames(_arr))	//["0", "length"]
 
 console.log(_arr.hasOwnProperty('length'))	//true
 ```
 
+[slide]
+
 * 子类是否可以继承调用isArray方法
+
+----
 
 ```javascript
 console.log(MyArray.isArray(arr))	
