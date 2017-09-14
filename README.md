@@ -13,3 +13,8 @@ vuex实现多个组件对共享数据的操作，vue-router实现路由
 
 主要分享一些es5继承、es6继承的知识，同时对两者进行了对比  
 [在线查看ppt](https://liuhualin95.github.io/demo/ppt/publish/heritage-0713.html)
+
+### async-0913
+
+主要分享一些关于回调地狱的优化方案，包括promise，generator以及async/await  
+[在线查看ppt](https://liuhualin95.github.io/demo/ppt/publish/async-0913.html)

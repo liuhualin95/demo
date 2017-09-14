@@ -1,0 +1,683 @@
+<!--
+    Powered By nodeppt - This is probably the best web presentation tool so far!
+    version: 1.4.5
+    site: https://github.com/ksky521/nodeppt
+    date: 
+-->
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>async-0913 - By Henry</title>
+    <link rel="stylesheet" media="all" href="./css/nodeppt.css">
+    <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="./css/phone.css">
+    
+    <link rel="stylesheet" href="./js/highlight/styles/monokai_sublime.css">
+    <link rel="stylesheet" href="./css/font-awesome.css">
+    
+<link rel="stylesheet" href="./css/theme.moon.css">
+</head>
+<body>
+<div class="slides">
+    <slides id="container">
+        <slide class="slide"><section class="slide-wrapper"><article class="flexbox vcenter">
+<h1>没标题</h1>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>回调地狱及优化方案</h2>
+
+</hgroup><article>
+
+<ul>
+<li>回调地狱：当业务逻辑复杂的时候，回调的嵌套过多，代码复杂度增加，可读性降低，维护起来也复杂，调试也复杂，这就是回调地狱。  <pre><code class="javascript">}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}
+</code></pre>
+</li>
+<li>优化方案：<ul>
+<li>Promise</li>
+<li>Generator</li>
+<li>Async/Await</li>
+</ul>
+</li>
+<li>将异步操作以同步操作的流程表达出来，避免层层嵌套</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Promise</h2>
+
+</hgroup><article>
+
+<ul>
+<li>一个容器，里面保存着某个未来才会结束的事件（通常是一个异步操作）的结果</li>
+<li>三种状态，依赖promise对象实例的内部属性[[PromiseState]]，pending、fulfilled(resolved)、rejected</li>
+<li>状态由异步操作的结果决定，resolve(value)代表进入resolved状态，reject(error)代表进入rejected状态</li>
+<li>状态改变后不会再变化，任何时候都可以获取状态的结果，对应状态的参数依赖内部属性[[PromiseResult]]</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Promise.prototype.then ( onFulfilled, onRejected )</h2>
+
+</hgroup><article>
+
+<ul>
+<li>分别指定resolved状态和rejected状态的回调函数</li>
+<li>resolve函数的参数除了正常的值以外，还可能是另一个Promise实例</li>
+<li>Promise.prototype.catch方法是.then(null, rejection)的别名，用于指定发生错误时的回调函数</li>
+</ul>
+<pre><code class="javascript">var p1 = new Promise(function (resolve, reject) {
+  setTimeout(() =&gt; reject(new Error(&#39;fail&#39;)), 3000)
+})
+
+var p2 = new Promise(function (resolve, reject) {
+  setTimeout(() =&gt; resolve(p1), 1000)
+})
+
+p2
+  .then(result =&gt; console.log(result))
+  .catch(error =&gt; console.log(error))
+// Error: fail
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Promise.prototype.then</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">var p1 = new Promise(function (resolve, reject) {
+  setTimeout(() =&gt; resolve(5), 500)
+})
+
+var p2 = new Promise(function (resolve, reject) {
+  setTimeout(() =&gt; resolve(p1), 1000)
+})
+p2
+  .then(result =&gt; console.log(result))
+  .catch(error =&gt; console.log(error))
+// 5
+</code></pre>
+<ul>
+<li>状态由resolve中的promise决定<br><a href="http://www.ecma-international.org/ecma-262/7.0/index.html#sec-promise-resolve-functions" target="_blank">http://www.ecma-international.org/ecma-262/7.0/index.html#sec-promise-resolve-functions</a></li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Promise.prototype.then</h2>
+
+</hgroup><article>
+
+<ul>
+<li>then方法返回一个新的promise实例，可以链式调用</li>
+<li>then方法的执行过程<ul>
+<li>设置this值为当前调用then方法的promise对象</li>
+<li>获取Promise构造函数，获取当前promise对象的constructor属性，也即Promise构造函数<pre><code class="javascript">new Promise((resolve, reject) =&gt; {resolve(1)})
+</code></pre>
+</li>
+<li>创建一个新的promise对象实例</li>
+<li>执行then方法中的handler，然后将返回结果在新的promise对象实例中resolve，即reslove(handler中的返回结果)</li>
+<li>handler中无返回值时，同样会执行内置的resolve函数将新创建的promise对象的状态置为fulfilled<br><a href="http://www.ecma-international.org/ecma-262/7.0/index.html#sec-promise.prototype.then" target="_blank">http://www.ecma-international.org/ecma-262/7.0/index.html#sec-promise.prototype.then</a></li>
+</ul>
+</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Promise.prototype.then</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">var promise = new Promise((resolve, reject) =&gt; {
+    resolve(1);
+});
+promise
+  .then(val =&gt; val + 1)
+  .then(val =&gt; console.log(val))
+  .then(val =&gt; console.log(val));
+// 2
+// undefined
+promise
+  .then(val =&gt; {
+      return new Promise((resolve, reject) =&gt; {
+          throw new Error(&#39;error.&#39;)
+      })
+  })
+  .then(val =&gt; console.log(val))
+  .catch(error =&gt; console.log(error));
+// Error: error.
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Promise.prototype.then</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">function delay() {
+    return new Promise((resolve, reject) =&gt; {
+        setTimeout(() =&gt; {
+            resolve(1)
+        }, 1000)
+    });
+}
+console.log(
+    delay()
+        .then((value) =&gt; {
+            throw new Error(&#39;error1&#39;)
+        })
+        .then((value) =&gt; {
+            throw new Error(&#39;error2&#39;)
+        })
+        .catch((error) =&gt; {
+            console.log(error)
+        })
+        //Error: error1
+)
+//Promise {[[PromiseStatus]]: &quot;pending&quot;, [[PromiseValue]]: undefined}
+// __proto__:Promise
+// [[PromiseStatus]]:&quot;resolved&quot;
+// [[PromiseValue]]:undefined
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Promise.prototype.then</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">var promise = new Promise((resolve, reject) =&gt; {
+    resolve(1);
+});
+promise
+  .then(val =&gt; val + 1)
+  .then()
+  .then(val =&gt; console.log(val));
+// 2
+
+var promise = new Promise((resolve, reject) =&gt; {
+    resolve(1);
+});
+console.log(
+    promise
+      .then(val =&gt; val + 1)
+      .then()
+);
+// Promise {[[PromiseStatus]]: &quot;pending&quot;, [[PromiseValue]]: undefined}
+// __proto__: Promise
+// [[PromiseStatus]]: &quot;resolved&quot;
+// [[PromiseValue]]: 2
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Generator</h2>
+
+</hgroup><article>
+
+<ul>
+<li>Generator函数，同样可以理解为一个容器，里面通过yield表达式(或者return)保存多个内部状态</li>
+<li>调用Genetator函数会返回一个遍历器对象(一个指向内部状态的指针对象)，通过next方法可以遍历内部的状态</li>
+<li>每次调用next方法，内部指针就从函数头部或上一次停下来的地方开始执行，直到遇到下一个yield表达式（或return语句）为止</li>
+<li>next方法的参数是上一个yield表达式的返回值；next方法自身也有返回值，形式如{value: yield后面表达式的返回值, done: true/false}</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Generator</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">// 星号表示这是一个 Generator 函数
+function* gen() {
+    // 第一次 next 只执行到等号右边
+    let first = yield (1 + 2)
+    // 第二次 next 执行 let first = 和 yield 2
+    let second = yield 2
+    // 不执行接下来的 next 就卡在上一步了
+    let thrid = yield 3
+}
+let g = gen()
+console.log(g.next()) // -&gt; {value: 3, done: false}
+console.log(g.next()) // -&gt; {value: 2, done: false}
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Generator 函数如何用于异步</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">function getFirstName () {
+    setTimeout(() =&gt; gen.next(&#39;alex&#39;), 1000);
+}
+
+function getSecondName (a) {
+    setTimeout(() =&gt; gen.next(a + &#39; perry&#39;), 1000);
+}
+
+function* sayHello () {
+    var a = yield getFirstName();
+    var b = yield getSecondName(a);
+    console.log(b); // -&gt;alex perry
+}
+
+var gen = sayHello();
+gen.next();
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Generator 函数手动执行</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">function getFirstName () {
+    return new Promise((resolve, reject) =&gt; {
+        setTimeout(() =&gt; resolve(&#39;alex&#39;), 1000);
+    });
+}
+function getSecondName (a) {
+    return new Promise((resolve, reject) =&gt; {
+        setTimeout(() =&gt; resolve(a + &#39; perry&#39;), 1000);
+    });
+}
+function* sayHello () {
+    var a = yield getFirstName();
+    var b = yield getSecondName(a);
+    console.log(b); // -&gt;alex perry
+}
+var gen = sayHello();
+gen.next().value.then((data) =&gt; {
+    gen.next(data).value.then((data) =&gt; {
+        gen.next(data);
+    });
+});
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Generator 函数自执行</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">function* sayHello () {
+    var a = yield getFirstName();
+    var b = yield getSecondName(a);
+    console.log(b); // -&gt;alex perry
+}
+
+function run (genF) {
+    var g = genF();
+    function next (data) {
+        var res = g.next(data);
+        if (res.done) return res.value;
+        res.value.then((data) =&gt; {
+            next(data);
+        });
+    }
+    next();
+}
+run(sayHello);
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>co模块</h2>
+
+</hgroup><article>
+
+<ul>
+<li>自动执行Generator函数</li>
+<li>前提： yield命令后面需要是promise对象，如果是数组或者对象，则其成员也必须是promise对象</li>
+<li>返回值为一个promise对象</li>
+<li>支持并发的异步操作，比如yield命令后面为一个数组或者对象，或者直接使用Promise.all方法都可以</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>co模块源码</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">function co(gen) {
+  var ctx = this; // 保存函数的执行上下文对象
+  var args = slice.call(arguments, 1) // 传给 gen 函数的参数
+  return new Promise(function(resolve, reject) {
+    if (typeof gen === &#39;function&#39;) gen = gen.apply(ctx, args);
+    if (!gen || typeof gen.next !== &#39;function&#39;) return resolve(gen);
+    onFulfilled();
+    function onFulfilled(res) {
+      var ret;
+      try {
+        ret = gen.next(res);
+      } catch (e) {
+        return reject(e);
+      }
+      next(ret);
+    }
+    function next(ret) {
+      if (ret.done) return resolve(ret.value); 
+      var value = toPromise.call(ctx, ret.value); // 将 value 重新包装成一个 promise 实例
+      if (value &amp;&amp; isPromise(value)) return value.then(onFulfilled, onRejected);      
+      return onRejected(new TypeError(&#39;You may only yield a function, promise, generator, array, or object, &#39;
+        + &#39;but the following object was passed: &quot;&#39; + String(ret.value) + &#39;&quot;&#39;));
+    }
+  });
+}
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>co模块源码</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">function toPromise(obj) {
+  if (!obj) return obj;  
+// 如果是 Promise 实例，返回这个 promise 实例
+  if (isPromise(obj)) return obj; 
+// 如果是 generator 函数或者 一个generator
+  if (isGeneratorFunction(obj) || isGenerator(obj)) return co.call(this, obj); 
+// 如果是 thunk 函数
+  if (&#39;function&#39; == typeof obj) return thunkToPromise.call(this, obj); 
+// 如果是一个数组
+  if (Array.isArray(obj)) return arrayToPromise.call(this, obj); 
+// 如果是一个 plain object
+  if (isObject(obj)) return objectToPromise.call(this, obj); 
+// 如果是原始值，则返回这个原始值
+  return obj; 
+}
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>co模块源码</h2>
+
+</hgroup><article>
+
+<ul>
+<li>判断一个对象是否是一个 promise 实例<pre><code class="javascript">function isPromise(obj) {
+    return &#39;function&#39; == typeof obj.then;
+}
+</code></pre>
+</li>
+<li>判断一个对象时候是 generator 实例<pre><code class="javascript">function isGenerator(obj) {
+    return &#39;function&#39; == typeof obj.next &amp;&amp; &#39;function&#39; == typeof obj.throw;
+}
+</code></pre>
+</li>
+<li>判断是否是一个 generator 函数<pre><code class="javascript">function isGeneratorFunction(obj) {
+    var constructor = obj.constructor;
+    if (!constructor) return false;
+    if (&#39;GeneratorFunction&#39; === constructor.name) return true;
+    return isGenerator(constructor.prototype);
+}
+</code></pre>
+</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>co模块源码</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">function arrayToPromise(obj) {
+  return Promise.all(obj.map(toPromise, this)); 
+}
+</code></pre>
+<pre><code class="javascript">function objectToPromise(obj){
+  var results = new obj.constructor();
+  var keys = Object.keys(obj);
+  var promises = []; 
+  for (var i = 0; i &lt; keys.length; i++) {
+    var key = keys[i];
+    var promise = toPromise.call(this, obj[key]); 
+    if (promise &amp;&amp; isPromise(promise)) defer(promise, key); 
+    else results[key] = obj[key];
+  }
+  return Promise.all(promises).then(function () {
+    return results; // 将 results 作为 onFulfilled 函数的参数
+  });
+  function defer(promise, key) {
+    results[key] = undefined;
+    promises.push(promise.then(function (res) {
+      results[key] = res;
+    }));
+  }
+}
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>co并发处理异步操作</h2>
+
+</hgroup><article>
+
+<p>允许某些操作同时进行，等到它们全部完成，才进行下一步</p>
+<pre><code class="javascript">// 数组的写法
+co(function* () {
+  var res = yield [
+    Promise.resolve(1),
+    Promise.resolve(2)
+  ];
+  console.log(res);
+}).catch(onerror);
+
+// 对象的写法
+co(function* () {
+  var res = yield {
+    1: Promise.resolve(1),
+    2: Promise.resolve(2),
+  };
+  console.log(res);
+}).catch(onerror);
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Generator</h2>
+
+</hgroup><article>
+
+<img src="./img/generator-objects-relationship.png" alt="generator对象关系图">
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Async/Await</h2>
+
+</hgroup><article>
+
+<ul>
+<li>Generator函数语法糖，在写法上async函数将generator函数的星号(*)替换成async，将yield替换成await<pre><code class="javascript">const sayHello = async function () {
+  var a = await getFirstName();
+  var b = await getSecondName(a);
+  console.log(b); // -&gt;alex perry
+}
+sayHello();
+</code></pre>
+</li>
+<li>async函数内置执行器，会自动执行到函数末尾，除非碰到return或者抛出错误</li>
+<li>co模块限制了yield命令后面只能是promise对象(thunk不提，后续co版本不再支持)，async函数中的await命令后面可以是promise对象和原始类型的值</li>
+<li>返回值是一个promise对象</li>
+</ul>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Async/Await实现原理</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">async function fn(args) {
+  // ...
+}
+
+// 等同于
+
+function fn(args) {
+  return co(function* () {
+    // ...
+  });
+}
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>Async/Await多个异步请求并发执行</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">function getFirstName () {
+    return new Promise((resolve, reject) =&gt; {
+        setTimeout(() =&gt; resolve(&#39;alex&#39;), 1000);
+    });
+}
+
+function getSecondName () {
+    return new Promise((resolve, reject) =&gt; {
+        setTimeout(() =&gt; resolve(&#39;perry&#39;), 500);
+    });
+}
+async function dbFuc (db) {
+  let promises = [getFirstName(), getSecondName()];
+  let results = await Promise.all(promises);
+  console.log(results);
+}
+dbFuc();
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>bind函数</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">var c = 3;
+function d(...args){
+    var c = 1;
+    console.log(this.c);
+    console.log(args);
+}
+d.bind({c:3}).call({c:4});  //3 []
+d.bind({c:3}, 1, 2).bind({c:5}, 3, 4).call({c:4}, 5);  //3 [1, 2, 3, 4, 5]
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><hgroup>
+<h2>bind函数的polyfill</h2>
+
+</hgroup><article>
+
+<pre><code class="javascript">Function.prototype.bind = function (context) {
+    var self = this,
+        args = [].slice.call(arguments, 1),
+        F = function () {},
+        bound = function () {
+            bound.prototype = this instanceof F ?
+                new F() : bound.prototype;
+            return self.apply(
+                this instanceof F ?
+                    this : context || this,
+                args.concat([].slice.call(arguments))
+            );
+        };
+    //Function.prototype doesn&#39;t have a prototype property
+    if (this.prototype) {
+        F.prototype = this.prototype;
+    }
+    return bound;
+}
+</code></pre>
+
+</article></section></slide>
+<slide class="slide"><section class="slide-wrapper"><article>
+<h2>THANKS</h2>
+
+</article></section></slide>
+        
+
+        <!-- <slide class="slide logoslide dark nobackground">
+            <article class="flexbox vcenter">
+                <h2 style="color: white;">Powered By nodeppt v1.4.5</h2>
+            </article>
+        </slide> -->
+        <div class="slideTip" id="tip"></div>
+    </slides>
+</div>
+<canvas id="drawBoard" class="draw-board" width="900" height="700"></canvas>
+<div class="progress"><span id="progress"></span></div>
+<div id="_buttons">
+    <div class="_btn-box" id="_btn-box" style="display:none;">
+        <button class="fa fa-arrow-circle-left" id="_btn-prev"></button>
+        <button class="fa fa-arrow-circle-right" id="_btn-next"></button>
+        <button class="fa fa-paint-brush" id="_btn-brush"></button>
+        <button class="fa fa-compress" id="_btn-overview" data-toggle="fa fa-expand"></button>
+    </div>
+    <button class="fa fa-bars" id="_btn-bar"  data-toggle="fa fa-close"></button>
+</div>
+<script src="./js/mixjs/lib/mix.0.3.0.min.js"></script>
+<script>
+    var ASSET_RELATIVE_DIR = ".";
+</script>
+<script>
+var base = location.protocol + '//' + location.host;
+
+var path = (location.pathname + '#').split('/').filter(function(v){
+    return !!v;
+});
+path.pop();
+path = path.join('/');
+if (typeof ASSET_RELATIVE_DIR === 'string') {
+    path = path + '/' + ASSET_RELATIVE_DIR;
+}
+MixJS.config({
+    baseURL: [ base, path, 'js'].join('/')+'/'
+});
+
+</script>
+<script src="./js/mixjs/lib/event/broadcast.js"></script>
+<script src="./js/nodeppt.js"></script>
+<script>
+Slide.init({
+    containerID: 'container',
+    drawBoardID: 'drawBoard',
+    slideClass: '.slide',
+    buildClass: '.build',
+    progressID: 'progress',
+    transition: 'slide3',
+    width: 1100,
+    dir: './',
+    
+    //打开下面的注释就开启postMessage方式
+    //访问网址127.0.0.1:8080/ppt/demo#client
+    control:{
+        type: 'postMessage',
+        args:{
+            isControl:  false
+        }
+    },
+    
+    tipID: 'tip'
+});
+MixJS.loadJS('highlight/highlight.pack.js',function(){
+    hljs.tabReplace = '  ';
+    hljs.initHighlightingOnLoad();
+});
+</script>
+<script src="./js/demo.js"></script>
+<link rel="stylesheet" href="./css/demo.css">
+<script src="./js/zoom.js"></script>
+
+<!-- MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+  config: ["TeX-AMS-MML_HTMLorMML.js"],
+  tex2jax: {inlineMath: [['\\(','\\)']]}});
+  //['$','$'], 避免货币价格冲突
+</script>
+<script type="text/javascript" src="./js/mathjax/MathJax.js"></script>
+
+<!--placeholder-->
+</body>
+</html>
