@@ -78,6 +78,8 @@ es6、es7 特性随便写
 <slide>
 
 ```
+import "@babel/polyfill";
+----- 完全等价于 -----
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 ```
@@ -205,7 +207,7 @@ import "core-js/modules/web.immediate";
 :::{.fadeIn.animated.delay-500}
 
 1. 特性列表是按浏览器整理的，那怎么知道哪些特性我用了，哪些没有用到，没有用到的部分也引入了是不是也是冗余？@babel/preset-env 有提供 exclude 的配置，如果我配置了 exclude，后面是否得小心翼翼地确保不要用到 exclude 掉的特性
-2. 补丁是打包到静态文件的，如果我配置 targets 为 chrome: 62, ie: 9，那意味着 chrome 62 也得载入 ie 9 相关的补丁，这也是一份冗余
+2. 补丁是打包到静态文件的，如果我配置 targets 为 chrome\: 62, ie\: 9，那意味着 chrome 62 也得载入 ie 9 相关的补丁，这也是一份冗余
 
 ` `
 
@@ -311,7 +313,8 @@ https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects
 ` `
   
   
-https\://cdn.bytedance.com/poly/
+https\://cdn.bytedance.com/poly/  
+https\://cdn.bytedance.com/poly/?features=Promise
 
 <slide class="aligncenter">
 
